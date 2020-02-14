@@ -1,5 +1,6 @@
 package com.example.languagesswitch;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
@@ -13,10 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+    private final String SP_FILE = "sharedPref";
+    private final String CUR_LANG_KEY = "curLang";
+
     private Spinner spnSwitchLang;
     private Button btnOk;
     private Locale curLocale = Locale.getDefault();
     private Configuration config;
+    private SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +35,9 @@ public class MainActivity extends AppCompatActivity {
         config = new Configuration();
         btnOk = findViewById(R.id.btnOk);
 
-        if (SaverCurLocale.curLocale != null) {
-            curLocale = SaverCurLocale.curLocale;
-        }
+        sharedPref = getSharedPreferences(SP_FILE, MODE_PRIVATE);
+
+        curLocale = new Locale(sharedPref.getString(CUR_LANG_KEY, Locale.getDefault().getLanguage()));
 
         initSpinner();
 
@@ -50,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Locale selectedLocale = getLocaleByItemSelected();
 
-                if (selectedLocale.equals(curLocale)) {
+                if (selectedLocale.getLanguage().equals(curLocale.getLanguage())) {
                     btnOk.setEnabled(false);
                 } else {
                     btnOk.setEnabled(true);
@@ -71,11 +76,9 @@ public class MainActivity extends AppCompatActivity {
         Locale selectedLocale = null;
 
         if (selectedLanguages.contains("Рус") || selectedLanguages.contains("Rus")) {
-            selectedLocale = new Locale("ru", "RU");
+            selectedLocale = new Locale("ru");
         } else if (selectedLanguages.contains("Англ") || selectedLanguages.contains("Eng")) {
-            selectedLocale = new Locale("en", "US");
-
-
+            selectedLocale = new Locale("en");
         }
 
         return selectedLocale;
@@ -90,10 +93,11 @@ public class MainActivity extends AppCompatActivity {
         getResources().updateConfiguration(config, getBaseContext().getResources()
                 .getDisplayMetrics());
 
-        SaverCurLocale.curLocale = selectedLocale;
+        curLocale = selectedLocale;
+
+        sharedPref.edit().putString(CUR_LANG_KEY, curLocale.getLanguage()).commit();
 
         recreate();
     }
-
 
 }
