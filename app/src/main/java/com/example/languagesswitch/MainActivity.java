@@ -15,10 +15,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private Spinner spnSwitchLang;
     private Button btnOk;
-
-    private Locale curLocale;
+    private Locale curLocale = Locale.getDefault();
     private Configuration config;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +28,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         config = new Configuration();
-        curLocale = Locale.getDefault();
         btnOk = findViewById(R.id.btnOk);
 
-        initSpinner();
+        if (SaverCurLocale.curLocale != null) {
+            curLocale = SaverCurLocale.curLocale;
+        }
 
+        initSpinner();
 
     }
 
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                btnOk.setEnabled(false);
             }
         });
     }
@@ -71,10 +71,13 @@ public class MainActivity extends AppCompatActivity {
         Locale selectedLocale = null;
 
         if (selectedLanguages.contains("Рус") || selectedLanguages.contains("Rus")) {
-            selectedLocale = new Locale("ru");
+            selectedLocale = new Locale("ru", "RU");
         } else if (selectedLanguages.contains("Англ") || selectedLanguages.contains("Eng")) {
-            selectedLocale = new Locale("en");
+            selectedLocale = new Locale("en", "US");
+
+
         }
+
         return selectedLocale;
     }
 
@@ -86,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
 
         getResources().updateConfiguration(config, getBaseContext().getResources()
                 .getDisplayMetrics());
+
+        SaverCurLocale.curLocale = selectedLocale;
 
         recreate();
     }
