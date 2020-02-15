@@ -19,28 +19,28 @@ public class MainActivity extends AppCompatActivity {
 
     private Spinner spnSwitchLang;
     private Button btnOk;
-    private Locale curLocale = Locale.getDefault();
+    private Locale curLocale;
     private Configuration config;
     private SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        init();
-    }
-
-    private void init() {
-        config = new Configuration();
-        btnOk = findViewById(R.id.btnOk);
 
         sharedPref = getSharedPreferences(SP_FILE, MODE_PRIVATE);
+        config = new Configuration();
 
         curLocale = new Locale(sharedPref.getString(CUR_LANG_KEY, Locale.getDefault().getLanguage()));
 
-        initSpinner();
+        config.setLocale(curLocale);
+        getResources().updateConfiguration(config, getBaseContext().getResources()
+                .getDisplayMetrics());
 
+        setContentView(R.layout.activity_main);
+
+        btnOk = findViewById(R.id.btnOk);
+
+        initSpinner();
     }
 
     private void initSpinner() {
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                btnOk.setEnabled(false);
+
             }
         });
     }
@@ -95,9 +95,14 @@ public class MainActivity extends AppCompatActivity {
 
         curLocale = selectedLocale;
 
-        sharedPref.edit().putString(CUR_LANG_KEY, curLocale.getLanguage()).commit();
-
         recreate();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sharedPref.edit().putString(CUR_LANG_KEY, curLocale.getLanguage()).commit();
+    }
+
 
 }
